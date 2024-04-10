@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative; /* Make the container position relative */
+        }
+
+        h1 {
+            margin-top: 0;
+            text-align: center;
+            color: #007bff;
+        }
+
+        .add-recipe-link {
+            position: absolute; /* Position the button absolutely */
+            top: 20px; /* Adjust top position */
+            right: 20px; /* Adjust right position */
+            padding: 10px 20px;
+            background-color: #007bff;
+            border: none;
+            color: #fff;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+
+        .add-recipe-link:hover {
+            background-color: #0056b3;
+        }
+
+        .recipes {
+            margin-top: 50px; /* Adjust margin top to accommodate the button */
+        }
+
+        .recipe {
+            margin-bottom: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .recipe h2 {
+            margin-top: 0;
+            color: #333;
+            font-size: 24px;
+        }
+
+        .recipe p {
+            margin-bottom: 10px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .pagination {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .pagination a {
+            margin: 0 5px;
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        .pagination .current {
+            font-weight: bold;
+            background-color: #007bff;
+            color: #fff;
+            border-color: #007bff;
+
+            margin: 0 5px;
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .recipe-actions {
+            text-align: right;
+            margin-top: 10px;
+        }
+
+        .recipe-actions a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .recipe-actions a:hover {
+            text-decoration: underline;
+        }
+
+        .recipe-actions button {
+            padding: 5px 10px;
+            background-color: #dc3545;
+            border: none;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .action-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none;
+        }
+
+        .edit-button {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        .delete-button {
+            background-color: #dc3545;
+            color: #fff;
+        }
+
+        .action-button:hover {
+            opacity: 0.8;
+        }
+
+
+        .recipe-actions {
+            text-align: right;
+        }
+
+        .action-form {
+            display: inline-block;
+            margin-left: 10px; /* Adjust spacing between buttons */
+        }
+
+        .action-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .action-button:hover {
+            opacity: 0.8;
+        }
+
+        .action-form:first-child {
+            margin-left: 0;
+        }
+
+        header {
+            background-color: #333;
+            padding: 10px 0;
+        }
+
+        nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+
+        nav ul li {
+            display: inline;
+            margin-right: 20px;
+        }
+
+        nav ul li a {
+            color: #fff;
+            text-decoration: none;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        nav ul li a:hover {
+            background-color: #555;
+        }
+
+        /* Styling for logout button */
+        nav ul li.logout-btn a {
+            background-color: #ff6347; /* Coral color */
+        }
+
+        nav ul li.logout-btn a:hover {
+            background-color: #ff473e; /* Darker coral color */
+        }
+    </style>
+</head>
+<body>
+<header>
+    <nav>
+        <ul>
+            <li><a href="#">Home</a></li>
+            <li><a href="/recipe_all">All Recipes</a></li>
+            <li><a href="/user_recipe">Personal Recipes</a></li>
+            <li><a href="#">Contact</a></li>
+            <li><a href="#">About</a></li>
+            <li><a href="/logout">Logout</a></li>
+        </ul>
+    </nav>
+</header>
+
+<div class="container">
+    <h1 style="color: #333;">RECIPE LIST</h1>
+    {% if current_user.is_authenticated %}
+    <a class="add-recipe-link" href="{{ url_for('recipe_form') }}" style="background: black">Add Recipe</a>
+    {% endif %}
+    {% if recipes %}
+    <div class="recipes">
+        {% for recipe in recipes %}
+        <div class="recipe">
+            <h2>{{ recipe.title }}</h2>
+            <p><strong>Description:</strong> {{ recipe.description }}</p>
+            <p><strong>Ingredients:</strong> {{ recipe.ingredients }}</p>
+            <p><strong>Instructions:</strong> {{ recipe.instructions }}</p>
+            <div class="recipe-actions">
+<!--                <a href="{{ url_for('edit_recipe', id=recipe.id) }}">Edit</a>-->
+                <form method="post" action="{{ url_for('edit_recipe', id=recipe.id) }}">
+                    <button type="submit" style="width:75px; background:#28a745;">Edit</button>
+                </form>
+                <br>
+                <form method="post" action="{{ url_for('delete_recipe', id=recipe.id) }}">
+                  <button type="submit" style="width:75px; background:#dc3545;">Delete</button>
+                </form>
+<!--                <a href="{{ url_for('delete_recipe', id=recipe.id) }}">Delete</a>-->
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p>No recipes available.</p>
+    {% endif %}
+
+    <div class="pagination">
+    {% if total_pages %}
+        {% for page_num in recipes.iter_pages() %}
+            {% if page_num %}
+                {% if page_num == recipes.page %}
+                    <span class="current">{{ page_num }}</span>
+                {% else %}
+                    <a href="{{ url_for('page', page=page_num, user_id=user_id) }}">{{ page_num }}</a>
+                {% endif %}
+            {% else %}
+                <span class="ellipsis">...</span>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    </div>
+</div>
+
+</body>
+</html>
